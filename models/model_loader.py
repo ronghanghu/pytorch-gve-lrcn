@@ -4,6 +4,8 @@ from .lrcn import LRCN
 from .gve import GVE
 from .sentence_classifier import SentenceClassifier
 from .image_classifier import ImageClassifier
+from .image_sentence_classifier import ImageSentenceClassifier
+
 
 class ModelLoader:
     def __init__(self, args, dataset):
@@ -75,3 +77,18 @@ class ModelLoader:
         ic = ImageClassifier(input_size, hidden_size, num_classes)
 
         return ic
+
+    def isc(self):
+        # Make sure dataset returns labels
+        self.dataset.set_label_usage(True)
+        # Sentence classifier arguments
+        input_size = self.dataset.input_size
+        embedding_size = self.args.embedding_size
+        hidden_size = self.args.hidden_size
+        vocab_size = len(self.dataset.vocab)
+        num_classes = self.dataset.num_classes
+
+        isc = ImageSentenceClassifier(input_size, embedding_size,
+            hidden_size, vocab_size, num_classes)
+
+        return isc
