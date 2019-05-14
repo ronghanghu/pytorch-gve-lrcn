@@ -3,6 +3,7 @@ import torch
 from .lrcn import LRCN
 from .gve import GVE
 from .sentence_classifier import SentenceClassifier
+from .image_classifier import ImageClassifier
 
 class ModelLoader:
     def __init__(self, args, dataset):
@@ -62,3 +63,15 @@ class ModelLoader:
                 num_classes)
 
         return sc
+
+    def ic(self):
+        # Make sure dataset returns labels
+        self.dataset.set_label_usage(True)
+        # Image classifier arguments
+        input_size = self.dataset.input_size
+        hidden_size = self.args.hidden_size
+        num_classes = self.dataset.num_classes
+
+        ic = ImageClassifier(input_size, hidden_size, num_classes)
+
+        return ic

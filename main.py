@@ -130,7 +130,7 @@ if __name__ == '__main__':
                 score = dataset.eval(result, "results")
 
 
-    if not args.train and args.model == 'sc':
+    if not args.train and (args.model == 'sc' or args.model == 'ic'):
         with open('results.json', 'w') as f:
             json.dump(result, f)
 
