@@ -15,6 +15,8 @@ class GVETrainer(LRCNTrainer):
     def __init__(self, args, model, dataset, data_loader, logger, device, checkpoint=None):
         super().__init__(args, model, dataset, data_loader, logger, device, checkpoint)
         self.rl_lambda = args.loss_lambda
+        self.rl_baseline = torch.Tensor([0.]).to(self.device)
+        self.rl_baseline_decay = 0.99
 
     def train_step(self, image_input, word_inputs, word_targets, lengths,
             labels):
@@ -42,7 +44,10 @@ class GVETrainer(LRCNTrainer):
         class_pred = self.model.sentence_classifier(sample_ids, lengths)
         class_pred = F.softmax(class_pred, dim=1)
         rewards = class_pred.gather(1, labels.view(-1,1)).squeeze()
-        r_loss = -(log_ps.sum(dim=1) * rewards).sum()
+        self.rl_baseline = (
+                self.rl_baseline * self.rl_baseline_decay +
+                rewards.mean().detach() * (1-self.rl_baseline_decay))
+        r_loss = -(log_ps.sum(dim=1) * (rewards - self.rl_baseline).detach()).sum()
 
         loss = self.rl_lambda * r_loss/labels.size(0) + self.criterion(outputs, word_targets)
         loss.backward()
