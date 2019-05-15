@@ -10,10 +10,12 @@ from .lrcn import LRCN
 
 class GVE(LRCN):
     def __init__(self, input, word_embed_size, hidden_size,
-                 vocab_size, sentence_classifier, num_classes, layers_to_truncate=1, dropout_prob=0.5):
+                 vocab_size, image_classifier, sentence_classifier,
+                 num_classes, layers_to_truncate=1, dropout_prob=0.5):
         super().__init__(input, word_embed_size, hidden_size, vocab_size, layers_to_truncate, dropout_prob)
 
         self.sentence_classifier = sentence_classifier
+        self.image_classifier = image_classifier
         self.num_classes = num_classes
         lstm2_input_size = 2*hidden_size + num_classes
         self.lstm2 = nn.LSTM(lstm2_input_size, hidden_size, batch_first=True)

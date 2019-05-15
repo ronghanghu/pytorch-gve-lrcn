@@ -41,9 +41,14 @@ class ModelLoader:
         for param in sc.parameters():
             param.requires_grad = False
         sc.eval()
+        ic = self.ic()
+        ic.load_state_dict(torch.load(self.args.ic_ckpt))
+        for param in ic.parameters():
+            param.requires_grad = False
+        ic.eval()
 
-        gve = GVE(input_size, embedding_size, hidden_size, vocab_size, sc,
-                num_classes)
+        gve = GVE(input_size, embedding_size, hidden_size, vocab_size, ic, sc,
+                  num_classes)
 
         if self.args.weights_ckpt:
             gve.load_state_dict(torch.load(self.args.weights_ckpt))
