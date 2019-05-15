@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.distributions as D
 from torch.nn.utils.rnn import pack_padded_sequence
 from torch.nn.utils.rnn import pad_packed_sequence
 
@@ -9,11 +10,12 @@ from functools import partial
 from .lrcn import LRCN
 
 class GVE(LRCN):
-    def __init__(self, input, word_embed_size, hidden_size,
+    def __init__(self, args, input, word_embed_size, hidden_size,
                  vocab_size, image_classifier, sentence_classifier,
                  num_classes, layers_to_truncate=1, dropout_prob=0.5):
         super().__init__(input, word_embed_size, hidden_size, vocab_size, layers_to_truncate, dropout_prob)
 
+        self.args = args
         self.sentence_classifier = sentence_classifier
         self.image_classifier = image_classifier
         self.num_classes = num_classes
@@ -38,6 +40,17 @@ class GVE(LRCN):
 
     def forward(self, image_inputs, captions, lengths, labels,
             labels_onehot=None):
+
+        if self.train and self.args.gve_ic:
+            raw_logits = self.image_classifier(image_inputs)
+            scaled_logits = raw_logits / self.args.gve_ic_temp
+            probs = F.softmax(scaled_logits)
+            m = D.Categorical(probs=probs)
+            sampled_labels = m.sample()
+            # print(
+            #   'accuracy:',
+            #   torch.mean((labels == sampled_labels.cpu()).float()))
+            labels = sampled_labels
 
         feat_func = self.get_labels_append_func(labels, labels_onehot)
         return super().forward(image_inputs, captions, lengths, feat_func)

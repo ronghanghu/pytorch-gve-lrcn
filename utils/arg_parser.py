@@ -46,6 +46,9 @@ def get_args():
     parser.add_argument('--loss-lambda', type=float, default=0.01,
                         help="[GVE] weight factor for reinforce loss")
 
+    parser.add_argument('--gve-ic', action='store_true')
+    parser.add_argument('--gve-ic-temp', type=float, default=3.5)
+
     parser.add_argument('--embedding-size', type=int , default=1000,
                         help='dimension of the word embedding')
     parser.add_argument('--hidden-size', type=int , default=1000,
