@@ -76,10 +76,9 @@ class ModelLoader:
         self.dataset.set_label_usage(True)
         # Image classifier arguments
         input_size = self.dataset.input_size
-        hidden_size = self.args.hidden_size
         num_classes = self.dataset.num_classes
 
-        ic = ImageClassifier(input_size, hidden_size, num_classes)
+        ic = ImageClassifier(input_size, num_classes)
 
         return ic
 
